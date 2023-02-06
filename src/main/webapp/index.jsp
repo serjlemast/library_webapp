@@ -73,8 +73,7 @@
                 fetch(baseUrl + '/orders', {method: 'GET'})
                     .then(response => response.json())
                     .then(jsonResponse => createOrderList(jsonResponse))
-            }
-            else{
+            } else {
                 fetch(baseUrl + '/orders', {method: 'GET'})
             }
         }
@@ -226,6 +225,18 @@
 
                     divElement.appendChild(rootElement);
                 })
+        }
+
+        function eventFindOrderByStatus() {
+            let newOrderStatus = orderStatus.value;
+
+            let order = {
+                status: newOrderStatus
+            };
+
+            fetch(baseUrl + '/orders/find' + '?status=' + order.status, {method: 'GET'})
+                .then(response => response.json())
+                .then(jsonResponse => createOrderList(jsonResponse))
         }
     </script>
 

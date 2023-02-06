@@ -15,9 +15,9 @@ public interface UserRepository {
      */
     int updateStatus(int id,boolean status);
     int updateUser(User user);
-    User find(int id);
+    UserCredential find(int id);
     UserCredential find(String username, String password);
-    List<User> findAll(int offset);
+    List<UserCredential> findAll(int offset);
 
     int getCountOfUsers();
 

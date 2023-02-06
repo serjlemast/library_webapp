@@ -10,11 +10,11 @@ public interface UserService {
 
     User createUser(User user);
 
-    List<User> findAll(int offset);
+    List<UserCredential> findAll(int offset);
 
     void updateStatus(int id,boolean status);
     void updateUser(User user);
-    User find(int id);
+    UserCredential find(int id);
     UserCredential find(String username, String password);
 
     void delete(int id);

@@ -7,7 +7,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 
     <script type="text/javascript">
-        let baseUrl = 'http://localhost:8082/liberary_war_exploded/admin'
+        let baseUrl = 'http://localhost:8082/library_webapp_war/admin'
     </script>
 
     <script type="text/javascript" src="webjars/jquery/3.3.1/jquery.min.js"></script>
@@ -106,6 +106,11 @@
         function createPaginationButtons(countOfUser) {
             let divElement2 = document.getElementById("paginationButtons");
             let rootElement2 = document.createElement("ui");
+
+            if (document.getElementById("paginationButtons") != null) {
+                document.getElementById("paginationButtons").innerHTML = ""
+            }
+
             rootElement2.setAttribute("class", "pagination")
             for (let i = 1; i < countOfUser.total / countOfUser.limit + 1; i++) {
                 let childElement2 = document.createElement("button");
@@ -286,7 +291,9 @@
             }
             fetch(baseUrl + '/users/find?' + 'username=' + user.username + '&password=' + user.password, {method: 'GET'})
                 .then(response => response.json())
-                .then(jsonResponse => createUserList(jsonResponse))
+                .then(jsonResponse => {
+                    createUserList(jsonResponse);
+                })
         }
     </script>
     <script type="text/javascript">
@@ -472,7 +479,7 @@
                        aria-controls="orderTab" aria-selected="false">CREATE ORDER</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="http://localhost:8082/liberary_war_exploded/logout"
+                    <a class="nav-link" href="<%= request.getContextPath() %>/logout"
                        aria-controls="categoryTab" aria-selected="false">Logout</a>
                 </li>
             </ul>

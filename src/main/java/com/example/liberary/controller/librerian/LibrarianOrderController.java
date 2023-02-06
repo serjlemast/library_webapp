@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.Objects;
 
 @WebServlet(urlPatterns = {"/librarian/orders", "/librarian/orders/*"})
 public class LibrarianOrderController extends AbstractHttpController {
@@ -27,13 +28,15 @@ public class LibrarianOrderController extends AbstractHttpController {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) {
         String pathInfo = req.getPathInfo();
         try {
-            String status = "CREATED";
-
-            if (pathInfo != null && pathInfo.equals("/booked")) {
-                status = "BOOKED";
-            }
-            //todo !!!!!
             List<OrderCredential> users = orderService.findAll();
+            if (pathInfo != null && pathInfo.contains("/find")) {
+                String orderStatus = req.getParameter("status");
+                String userId = req.getParameter("userId");
+                if (Objects.nonNull(userId)) {
+                    users.clear();
+                    users = orderService.findAll(Status.getStatus(orderStatus),Integer.parseInt(userId));
+                }
+            }
             String json = toJson(users);
             writeJsonResponseBody(200, json, resp);
         } catch (ApplicationException ex) {
@@ -52,16 +55,15 @@ public class LibrarianOrderController extends AbstractHttpController {
             OrderCredential order = jsonToClass(json, OrderCredential.class);
             // 3.
             if (pathInfo != null && pathInfo.equals("/update")) {
-                //todo !!!Будет переделпно
-                order.setStatus(Status.CANCELED);
                 HttpSession session = req.getSession();
                 String sessionLibrarianId = session.getAttribute("sessionUserId").toString();
                 orderService.update(Integer.parseInt(sessionLibrarianId), order);
-            } else {
-                // get book id from path
-                int bookId = defineUrlPathParameter(req);
-                orderService.update(order, bookId, "NOT AVAILABLE");
             }
+//            else {
+//                // get book id from path
+//                int bookId = defineUrlPathParameter(req);
+//                orderService.update(order, bookId, "NOT AVAILABLE");
+//            }
             // 4. Create successful HTTP response with JSON body
             writeJsonResponseBody(200, json, resp);
         } catch (ApplicationException ex) {

@@ -27,14 +27,14 @@ public class OrderRepositoryImpl extends AbstractRepository implements OrderRepo
     }
 
     @Override
-    public void update(int id,OrderCredential order) {
+    public void update(int id, OrderCredential order) {
         HikariCPDataSource.execute((conn) -> {
             try (PreparedStatement preparedStatement = conn.prepareStatement(UPDATE_ORDER_BY_LIBRARIAN)) {
-                preparedStatement.setInt(1, order.getLibrarianId());
+                preparedStatement.setInt(1, id);
                 preparedStatement.setString(2, order.getStatus().name());
                 preparedStatement.setBoolean(3, order.isSubscription());
-                preparedStatement.setDate(4, order.getCreateDate());
-                preparedStatement.setInt(5, id);
+                preparedStatement.setDate(4, order.getReturnDate());
+                preparedStatement.setInt(5, order.getId());
                 preparedStatement.executeUpdate();
                 return null;
             }
@@ -45,7 +45,7 @@ public class OrderRepositoryImpl extends AbstractRepository implements OrderRepo
     @Override
     public List<OrderCredential> findAll() {
         return HikariCPDataSource.execute((conn) -> {
-            try (PreparedStatement preparedStatement = conn.prepareStatement(SELECT_ORDERS_SQL_QUERY2); ResultSet resultSet = preparedStatement.executeQuery()) {
+            try (PreparedStatement preparedStatement = conn.prepareStatement(SELECT_ORDERS_SQL_QUERY); ResultSet resultSet = preparedStatement.executeQuery()) {
                 List<OrderCredential> orderList = new ArrayList<>();
                 while (resultSet.next()) {
                     OrderCredential order = OrderCredential.builder()
@@ -54,6 +54,7 @@ public class OrderRepositoryImpl extends AbstractRepository implements OrderRepo
                             .librarianId(resultSet.getInt(ORDER_LIBRARIAN_ID_COLUMN))
                             .bookIds(resultSet.getString("book_ids"))
                             .createDate(resultSet.getDate("create_date"))
+                            .returnDate(resultSet.getDate("return_date"))
                             .subscription(resultSet.getBoolean("subscription"))
                             .build();
                     //todo
@@ -76,11 +77,13 @@ public class OrderRepositoryImpl extends AbstractRepository implements OrderRepo
                     OrderCredential order = OrderCredential.builder()
                             .id(resultSet.getInt("o.id"))
                             .bookIds(resultSet.getString("book_ids"))
+                            .userId(resultSet.getInt("user_id"))
                             .bookNames(resultSet.getString("book_names"))
                             .createDate(resultSet.getDate("o.create_date"))
+                            .returnDate(resultSet.getDate("return_date"))
+                            .subscription(resultSet.getBoolean("subscription"))
+                            .status(Status.getStatus(resultSet.getString("status")))
                             .build();
-                    //todo
-                    order.setStatus(Status.valueOf(resultSet.getString("status")));
                     orderList.add(order);
                 }
                 return orderList;
@@ -89,9 +92,10 @@ public class OrderRepositoryImpl extends AbstractRepository implements OrderRepo
     }
 
     PreparedStatement findUserByStatusPrepareStatement(Connection connection, Status status, int id) throws SQLException {
-        PreparedStatement preparedStatement = connection.prepareStatement(SELECT_ORDERS_SQL_QUERY);
-        preparedStatement.setInt(1, id);
-        preparedStatement.setString(2, status.name());
+        PreparedStatement preparedStatement = connection.prepareStatement(SELECT_ORDERS_BY_CREDENTIALS_SQL_QUERY);
+        String format = "%%%s%%";
+        preparedStatement.setString(1, String.format(format, status.name()));
+        preparedStatement.setInt(2, id);
         return preparedStatement;
     }
 

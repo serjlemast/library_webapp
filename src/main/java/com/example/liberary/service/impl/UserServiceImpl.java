@@ -25,7 +25,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<User> findAll(int offset) {
+    public List<UserCredential> findAll(int offset) {
         //todo ROLE
         return userRepository.findAll(offset);
     }
@@ -49,7 +49,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User find(int id) {
+    public UserCredential find(int id) {
         return userRepository.find(id);
     }
 

@@ -12,8 +12,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.Objects;
 
-@WebServlet("/client/orders")
+@WebServlet(urlPatterns = {"/client/orders", "/client/orders/*"})
 public class ReaderOrderController extends AbstractHttpController {
 
     private static final Logger logger = LoggerFactory.getLogger(ReaderOrderController.class);
@@ -48,11 +49,18 @@ public class ReaderOrderController extends AbstractHttpController {
      */
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) {
+        String pathInfo = req.getPathInfo();
         try {
             HttpSession session = req.getSession();
             String sessionUserId = session.getAttribute("sessionUserId").toString();
-            //todo
-            List<OrderCredential> orders = orderService.findAll(Status.CREATED, Integer.parseInt(sessionUserId));
+            Status status = Status.CREATED;
+            if (pathInfo != null && pathInfo.contains("/find")) {
+                String orderStatus = req.getParameter("status");
+                if (Objects.nonNull(orderStatus)) {
+                    status = Status.getStatus(orderStatus);
+                }
+            }
+            List<OrderCredential> orders = orderService.findAll(status, Integer.parseInt(sessionUserId));
             String json = toJson(orders);
             writeJsonResponseBody(200, json, resp);
         } catch (ApplicationException ex) {

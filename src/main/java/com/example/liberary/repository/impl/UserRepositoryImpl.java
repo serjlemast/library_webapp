@@ -63,11 +63,11 @@ public class UserRepositoryImpl extends AbstractRepository implements UserReposi
     }
 
     @Override
-    public User find(int id) {
+    public UserCredential find(int id) {
         return HikariCPDataSource.execute((conn) -> {
             try (PreparedStatement preparedStatement = findUserByIdPrepareStatement(conn, id);
                  ResultSet resultSet = preparedStatement.executeQuery()) {
-                User.UserBuilder builder = User.builder();
+                UserCredential.UserCredentialBuilder builder = UserCredential.builder();
                 if (resultSet.next()) {
                     builder
                             .id(resultSet.getInt(USER_ID_COLUMN))
@@ -114,13 +114,13 @@ public class UserRepositoryImpl extends AbstractRepository implements UserReposi
     }
 
     @Override
-    public List<User> findAll(int offset) {
+    public List<UserCredential> findAll(int offset) {
         return HikariCPDataSource.execute((conn) -> {
             try (Statement statement = conn.createStatement();
                  ResultSet resultSet = statement.executeQuery(SELECT_USERS_SQL_QUERY + calculateOffset(offset))) {
-                List<User> userList = new ArrayList<>();
+                List<UserCredential> userList = new ArrayList<>();
                 while (resultSet.next()) {
-                    User user = User.builder()
+                    UserCredential user = UserCredential.builder()
                             .id(resultSet.getInt(USER_ID_COLUMN))
                             .firstName(resultSet.getString(USER_FIRST_NAME_COLUMN))
                             .secondName(resultSet.getString(USER_SECOND_NAME_COLUMN))

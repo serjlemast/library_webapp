@@ -3,6 +3,7 @@ package com.example.liberary.controller.admin;
 import com.example.liberary.controller.base.AbstractHttpController;
 import com.example.liberary.exeption.ApplicationException;
 import com.example.liberary.model.User;
+import com.example.liberary.model.UserCredential;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -64,12 +65,16 @@ public class UserRestController extends AbstractHttpController {
         try {
             String pageNumber = req.getParameter("page_number");
             int offset = defineOffset(pageNumber);
-            List<User> users = userService.findAll(offset);
+            List<UserCredential> users = userService.findAll(offset);
 
             if (pathInfo != null && pathInfo.equals("/find")) {
                 String id = req.getParameter("id");
                 String password = req.getParameter("password");
                 String username = req.getParameter("username");
+                if (pageNumber != null || username != null) {
+                    users.clear();
+                    users.add(userService.find(username, password));
+                }
                 if (id != null) {
                     users.clear();
                     users.add(userService.find(Integer.parseInt(id)));

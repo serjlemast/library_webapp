@@ -86,14 +86,14 @@ public abstract class AbstractRepository {
 
     public static final String INSERT_NEW_ORDER_BY_USER_SQL_QUERY = "insert into orders_table set user_id = 1 , book_id = ?,status = 'CREATED',create_date = current_date;";
 
-    public static String SELECT_ORDERS_SQL_QUERY = "select o.id ,o.create_date, o.status , o.subscription, o.user_id, " +
+    public static String SELECT_ORDERS_BY_CREDENTIALS_SQL_QUERY = "select o.id ,o.create_date, o.status ,o.return_date, o.subscription, o.user_id, " +
             "group_concat(b.name) as book_names, " +
             "group_concat(book_id) as book_ids " +
             "from orders_table as o " +
             "left join order_books_table as obt on o.id = obt.order_id " +
             "left join books_table as b on b.id  = obt.book_id " +
-            "where o.user_id = ? and o.status = ? group by o.id";
-    public static String SELECT_ORDERS_SQL_QUERY2 = "select ot.id ,ot.create_date, ot.status , ot.subscription, ot.user_id,ot.librarian_id ,group_concat(Distinct book_id SEPARATOR ',') as book_ids " +
+            "where o.status like ? and o.user_id = ?    group by o.id";
+    public static String SELECT_ORDERS_SQL_QUERY = "select ot.id ,ot.create_date,ot.return_date, ot.status , ot.subscription, ot.user_id,ot.librarian_id ,group_concat(book_id) as book_ids " +
             "from orders_table as ot " +
             "left join order_books_table as obt on ot.id = obt.order_id " +
             "group by ot.id ";
@@ -105,7 +105,7 @@ public abstract class AbstractRepository {
             "left join books_table b on obt.book_id = b.id " +
             "where o.status = 'CREATED' and u.id = ";
 
-    public static String UPDATE_ORDER_BY_LIBRARIAN = "UPDATE orders_table SET librarian_id = ? , status = ?,subscription = ?,return_date = ? where id = ?";
+    public static String UPDATE_ORDER_BY_LIBRARIAN = "UPDATE orders_table SET librarian_id = ? , status = ?,subscription = ?,return_date = DATE ? where id = ?";
     public static String UPDATE_ORDER_BY_LIBRARIAN2 = "UPDATE orders_table SET librarian_id = 3 , status = 'CANCELED',subscription = true,return_date = DATE '2022-11-26' where id = 24;";
 
 }
